@@ -1,59 +1,44 @@
+<!-- script.js -->
 const products = [
-  { id: 1, name: "Sneakers", price: 1200, category: "clothing" },
-  { id: 2, name: "Headphones", price: 2500, category: "electronics" },
-  { id: 3, name: "T-Shirt", price: 600, category: "clothing" },
-  { id: 4, name: "Bluetooth Speaker", price: 1500, category: "electronics" }
+  { id: 1, name: 'Shirt', price: 20, category: 'clothing' },
+  { id: 2, name: 'Jeans', price: 40, category: 'clothing' },
+  { id: 3, name: 'Shoes', price: 60, category: 'footwear' },
 ];
 
-localStorage.setItem("products", JSON.stringify(products));
+const productList = document.getElementById('product-list');
+const searchInput = document.getElementById('search');
+const categoryFilter = document.getElementById('category-filter');
 
-const container = document.getElementById("product-container");
-const searchInput = document.getElementById("searchInput");
-const categoryFilter = document.getElementById("categoryFilter");
-
-let cart = JSON.parse(localStorage.getItem("cart")) || [];
-updateCartCount();
-
-function renderProducts(list) {
-  container.innerHTML = "";
-  list.forEach((p) => {
-    const div = document.createElement("div");
-    div.className = "product";
-    div.innerHTML = `
+function displayProducts(filteredProducts) {
+  if (!productList) return;
+  productList.innerHTML = filteredProducts.map(p => `
+    <div class="product">
       <h3>${p.name}</h3>
-      <p>Category: ${p.category}</p>
-      <p>₹${p.price}</p>
-      <button onclick="addToCart(${p.id})">Add to Cart</button>
-    `;
-    container.appendChild(div);
-  });
-}
-
-function addToCart(id) {
-  cart.push(id);
-  localStorage.setItem("cart", JSON.stringify(cart));
-  updateCartCount();
-  alert("Item added to cart!");
-}
-
-function updateCartCount() {
-  const countSpan = document.getElementById("cart-count");
-  if (countSpan) countSpan.innerText = cart.length;
+      <p>Price: $${p.price}</p>
+      <button onclick='addToCart(${JSON.stringify(p)})'>Add to Cart</button>
+    </div>
+  `).join('');
 }
 
 function filterProducts() {
-  const search = searchInput?.value.toLowerCase() || "";
-  const category = categoryFilter?.value || "all";
-  let filtered = products.filter(p =>
-    p.name.toLowerCase().includes(search)
+  const searchTerm = searchInput.value.toLowerCase();
+  const selectedCategory = categoryFilter.value;
+  const filtered = products.filter(p => 
+    (selectedCategory === 'all' || p.category === selectedCategory) &&
+    p.name.toLowerCase().includes(searchTerm)
   );
-  if (category !== "all") {
-    filtered = filtered.filter(p => p.category === category);
-  }
-  renderProducts(filtered);
+  displayProducts(filtered);
 }
 
-searchInput?.addEventListener("input", filterProducts);
-categoryFilter?.addEventListener("change", filterProducts);
+if (searchInput && categoryFilter) {
+  searchInput.addEventListener('input', filterProducts);
+  categoryFilter.addEventListener('change', filterProducts);
+  displayProducts(products);
+}
 
-renderProducts(products);
+function addToCart(product) {
+  const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+  cart.push(product);
+  localStorage.setItem('cart', JSON.stringify(cart));
+  alert('Added to cart');
+}
