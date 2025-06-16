@@ -1,39 +1,53 @@
-<!-- updated admin.html -->
+<!-- admin.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Admin Panel</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <h1>Admin Panel</h1>
+
   <h2>Registered Users</h2>
   <div id="users"></div>
-  <h2>Customer Orders</h2>
+
+  <h2>Placed Orders</h2>
   <div id="orders"></div>
+
   <script>
+    // Show all registered users
     const users = JSON.parse(localStorage.getItem('users') || '[]');
     const usersDiv = document.getElementById('users');
-    usersDiv.innerHTML = users.length ? users.map((u, i) => `
-      <div class="user">
-        <p><strong>User ${i+1}:</strong> ${u.name} (${u.email})</p>
-      </div>
-    `).join('') : '<p>No registered users.</p>';
+    usersDiv.innerHTML = users.length
+      ? users.map((user, index) => `
+          <div>
+            <p><strong>User ${index + 1}</strong></p>
+            <p>Name: ${user.name}</p>
+            <p>Email: ${user.email}</p>
+            <hr>
+          </div>
+        `).join('')
+      : '<p>No users found.</p>';
 
+    // Show all placed orders
     const orders = JSON.parse(localStorage.getItem('orders') || '[]');
     const ordersDiv = document.getElementById('orders');
-    ordersDiv.innerHTML = orders.length ? orders.map((order, i) => `
-      <div class="order">
-        <h3>Order ${i + 1}</h3>
-        <p><strong>Name:</strong> ${order.name}</p>
-        <p><strong>Email:</strong> ${order.email}</p>
-        <ul>
-          ${order.cart.map(p => `<li>${p.name} - $${p.price}</li>`).join('')}
-        </ul>
-      </div>
-    `).join('') : '<p>No orders yet.</p>';
+    ordersDiv.innerHTML = orders.length
+      ? orders.map((order, index) => `
+          <div>
+            <p><strong>Order ${index + 1}</strong></p>
+            <p>Name: ${order.name}</p>
+            <p>Email: ${order.email}</p>
+            <p>Items:</p>
+            <ul>
+              ${order.cart.map(item => `<li>${item.name} - $${item.price}</li>`).join('')}
+            </ul>
+            <hr>
+          </div>
+        `).join('')
+      : '<p>No orders found.</p>';
   </script>
 </body>
 </html>
