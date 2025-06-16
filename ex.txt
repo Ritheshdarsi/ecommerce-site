@@ -1,0 +1,152 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shop</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h1>Product List</h1>
+  <input type="text" id="search" placeholder="Search products...">
+  <select id="category-filter">
+    <option value="all">All Categories</option>
+    <option value="clothing">Clothing</option>
+    <option value="footwear">Footwear</option>
+  </select>
+  <div id="product-list"></div>
+  <a href="cart.html">Go to Cart</a>
+  <script src="script.js"></script>
+</body>
+</html>
+
+<!-- cart.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cart</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h1>Your Cart</h1>
+  <div id="cart-items"></div>
+  <a href="checkout.html">Checkout</a>
+  <script>
+    const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+    document.getElementById('cart-items').innerHTML = cart.map(p => `<p>${p.name} - $${p.price}</p>`).join('');
+  </script>
+</body>
+</html>
+
+<!-- checkout.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checkout</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h1>Checkout</h1>
+  <form id="checkout-form">
+    <input type="text" placeholder="Name" id="name" required>
+    <input type="email" placeholder="Email" id="email" required>
+    <button type="submit">Place Order</button>
+  </form>
+  <script>
+    document.getElementById('checkout-form').onsubmit = function(e) {
+      e.preventDefault();
+      const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+      const orders = JSON.parse(localStorage.getItem('orders') || '[]');
+      orders.push({ name: name.value, email: email.value, cart });
+      localStorage.setItem('orders', JSON.stringify(orders));
+      localStorage.removeItem('cart');
+      alert('Order placed!');
+      location.href = 'index.html';
+    }
+  </script>
+</body>
+</html>
+
+<!-- admin.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Panel</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h1>Customer Orders</h1>
+  <div id="orders"></div>
+  <script src="orders.js"></script>
+</body>
+</html>
+
+<!-- script.js -->
+const products = [
+  { id: 1, name: 'Shirt', price: 20, category: 'clothing' },
+  { id: 2, name: 'Jeans', price: 40, category: 'clothing' },
+  { id: 3, name: 'Shoes', price: 60, category: 'footwear' },
+];
+
+const productList = document.getElementById('product-list');
+const searchInput = document.getElementById('search');
+const categoryFilter = document.getElementById('category-filter');
+
+function displayProducts(filteredProducts) {
+  if (!productList) return;
+  productList.innerHTML = filteredProducts.map(p => `
+    <div class="product">
+      <h3>${p.name}</h3>
+      <p>Price: $${p.price}</p>
+      <button onclick='addToCart(${JSON.stringify(p)})'>Add to Cart</button>
+    </div>
+  `).join('');
+}
+
+function filterProducts() {
+  const searchTerm = searchInput.value.toLowerCase();
+  const selectedCategory = categoryFilter.value;
+  const filtered = products.filter(p => 
+    (selectedCategory === 'all' || p.category === selectedCategory) &&
+    p.name.toLowerCase().includes(searchTerm)
+  );
+  displayProducts(filtered);
+}
+
+if (searchInput && categoryFilter) {
+  searchInput.addEventListener('input', filterProducts);
+  categoryFilter.addEventListener('change', filterProducts);
+  displayProducts(products);
+}
+
+function addToCart(product) {
+  const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+  cart.push(product);
+  localStorage.setItem('cart', JSON.stringify(cart));
+  alert('Added to cart');
+}
+
+<!-- orders.js -->
+const orders = JSON.parse(localStorage.getItem('orders') || '[]');
+const ordersDiv = document.getElementById('orders');
+if (orders.length === 0) {
+  ordersDiv.innerHTML = '<p>No orders yet.</p>';
+} else {
+  ordersDiv.innerHTML = orders.map((order, i) => `
+    <div class="order">
+      <h3>Order ${i + 1}</h3>
+      <p><strong>Name:</strong> ${order.name}</p>
+      <p><strong>Email:</strong> ${order.email}</p>
+      <ul>
+        ${order.cart.map(p => `<li>${p.name} - $${p.price}</li>`).join('')}
+      </ul>
+    </div>
+  `).join('');
+}

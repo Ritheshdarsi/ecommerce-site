@@ -1,4 +1,4 @@
-<!-- admin.html -->
+<!-- updated admin.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,8 +8,32 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h1>Customer Orders</h1>
+  <h1>Admin Panel</h1>
+  <h2>Registered Users</h2>
+  <div id="users"></div>
+  <h2>Customer Orders</h2>
   <div id="orders"></div>
-  <script src="orders.js"></script>
+  <script>
+    const users = JSON.parse(localStorage.getItem('users') || '[]');
+    const usersDiv = document.getElementById('users');
+    usersDiv.innerHTML = users.length ? users.map((u, i) => `
+      <div class="user">
+        <p><strong>User ${i+1}:</strong> ${u.name} (${u.email})</p>
+      </div>
+    `).join('') : '<p>No registered users.</p>';
+
+    const orders = JSON.parse(localStorage.getItem('orders') || '[]');
+    const ordersDiv = document.getElementById('orders');
+    ordersDiv.innerHTML = orders.length ? orders.map((order, i) => `
+      <div class="order">
+        <h3>Order ${i + 1}</h3>
+        <p><strong>Name:</strong> ${order.name}</p>
+        <p><strong>Email:</strong> ${order.email}</p>
+        <ul>
+          ${order.cart.map(p => `<li>${p.name} - $${p.price}</li>`).join('')}
+        </ul>
+      </div>
+    `).join('') : '<p>No orders yet.</p>';
+  </script>
 </body>
 </html>
