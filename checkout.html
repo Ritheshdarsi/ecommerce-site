@@ -10,21 +10,37 @@
 <body>
   <h1>Checkout</h1>
   <form id="checkout-form">
-    <input type="text" placeholder="Name" id="name" required>
-    <input type="email" placeholder="Email" id="email" required>
     <button type="submit">Place Order</button>
   </form>
   <script>
-    document.getElementById('checkout-form').onsubmit = function(e) {
+    document.getElementById('checkout-form').onsubmit = function (e) {
       e.preventDefault();
+
+      const currentUser = JSON.parse(localStorage.getItem('currentUser'));
       const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+
+      if (!currentUser) {
+        alert('Please login to place an order.');
+        return;
+      }
+
+      if (cart.length === 0) {
+        alert('Cart is empty.');
+        return;
+      }
+
       const orders = JSON.parse(localStorage.getItem('orders') || '[]');
-      orders.push({ name: name.value, email: email.value, cart });
+      orders.push({
+        name: currentUser.name,
+        email: currentUser.email,
+        cart: cart
+      });
+
       localStorage.setItem('orders', JSON.stringify(orders));
       localStorage.removeItem('cart');
-      alert('Order placed!');
-      location.href = 'index.html';
-    }
+      alert('Order placed successfully!');
+      window.location.href = 'index.html';
+    };
   </script>
 </body>
 </html>
